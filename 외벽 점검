@@ -1,0 +1,36 @@
+#include<iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+int ans = 20;
+vector<int> temp;
+void dfs(int n, vector<int> weak, vector<int> dist, int cnt) {
+    if (cnt + 1 > ans || dist.empty())
+        return;
+    int distance = dist[dist.size() - 1];
+    dist.assign(dist.begin(), dist.end() - 1);
+    for (int i = 0; i < weak.size(); i++) {
+        int pos = weak[0] + distance;
+        int idx = upper_bound(weak.begin(), weak.end(), pos) - weak.begin() - 1;
+        if (idx == weak.size() - 1) {
+            ans = min(ans, cnt + 1);
+            return;
+        }
+        temp.assign(weak.begin() + idx + 1, weak.end());
+
+        dfs(n, temp, dist, cnt + 1);
+
+        weak.push_back(weak[0] + n);
+        weak.assign(weak.begin() + 1, weak.end());
+    }
+}
+
+int solution(int n, vector<int> weak, vector<int> dist) {
+    sort(dist.begin(), dist.end());
+	dfs(n, weak, dist, 0);
+    if (ans == 20)
+        ans = -1;
+    return ans;
+}
