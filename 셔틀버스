@@ -1,0 +1,86 @@
+#include <string>
+#include <vector>
+#include <iostream>
+#include <algorithm>
+using namespace std;
+
+
+string answer = "";
+
+void Makeans(int i, int j){
+    if(j < 0){
+        i--;
+        j = 59;
+    }
+    answer ="00:00";
+    answer[0] += i / 10;
+    answer[1] += i % 10;
+    answer[3] += j / 10;
+    answer[4] += j % 10;
+}
+
+vector<pair<int, int>> v;
+
+
+bool cmp(pair<int, int> a, pair<int, int> b){
+    int x1 = a.first;
+    int y1 = b.first;
+    if(y1 > x1)
+        return true;
+    else if(x1 > y1)
+        return false;
+    else{
+        int x2 = a.second;
+        int y2 = b.second;
+        if(x2 < y2)
+            return true;
+        else
+            return false;
+    }
+}
+
+string solution(int n, int t, int m, vector<string> timetable) {
+    for(int i = 0; i < timetable.size(); i++){
+        v. push_back({(timetable[i][0] - '0') * 10 + (timetable[i][1] - '0'),(timetable[i][3] - '0') * 10 + (timetable[i][4] - '0')});
+    }
+
+    sort(v.begin(), v.end(), cmp);
+    int tx, ty;
+
+
+    int j = 0;
+    for(int i = 1; i <= n; i++) {
+        tx = 9;
+        ty = t * (i - 1);
+
+        while (ty >= 60) {
+            ty -= 60;
+            tx++;
+        }
+        // 버스가 출발하는 시간 체크
+        int temp = m;
+        int total = m * (n - (i - 1));
+        for (; j < v.size(); j++) {
+            int x = v[j].first;
+            int y = v[j].second;
+            if ((tx == x && y > ty) || (tx < x))
+                break;
+            // 시간을 넘어가는건 체크 하지 않는다.
+            temp--;
+            total--;
+            //cout << temp << "   " << total << "   " << j  << endl;
+            if(temp == 0 && i != n) {
+                j++;
+                break;
+            }
+            // 한 버스에는 m 명만 태운다.
+            // 또한 마지막 버스일 경우 total로 거름
+            if(total == 0){
+                Makeans(x, y - 1);
+                return answer;
+            }
+        }
+    }
+    Makeans(tx, ty);
+    return answer;
+}
