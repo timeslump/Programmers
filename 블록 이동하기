@@ -1,0 +1,124 @@
+#include <string>
+#include <vector>
+#include <algorithm>
+#include <queue>
+using namespace std;
+bool Visit[101][101][101][101];
+vector<vector<int>> Map;
+int nx1, nx2, ny1, ny2, N;
+int x, xx, y, yy;
+int dx[4] = {0, 0, -1, 1};
+int dy[4] = {1, -1, 0, 0};
+
+int answer = 0;
+
+bool check(int x, int y){
+    if(x >= 0 && x < N && y >= 0 && y < N)
+        return true;
+    else
+        return false;
+}
+struct robot{
+    int x,y;
+    int xx,yy;
+    robot(int a, int b, int c,int d){
+        x = a;
+        y = b;
+        xx = c;
+        yy = d;
+    }
+};
+
+void bfs(){
+    queue<robot> q;
+    robot temp(0, 0, 0, 1);
+    Visit[0][0][0][1] = true;
+    q.push(temp);
+    int cnt = 0;
+    while(!q.empty()){
+        int qs = q.size();
+        while(qs--){
+            x = q.front().x;
+            xx = q.front().xx;
+            y = q.front().y;
+            yy = q.front().yy;
+            q.pop();
+            if((x == N - 1 && y == N - 1) || (xx == N - 1 && yy == N - 1)) {
+                answer = cnt;
+                return;
+            }
+            for(int i = 0; i < 4; i++){
+                nx1 = x + dx[i];
+                nx2 = xx + dx[i];
+                ny1 = y + dy[i];
+                ny2 = yy + dy[i];
+                if(!check(nx1, ny1) || !check(nx2, ny2) || Visit[nx1][ny1][nx2][ny2])
+                    continue;
+                if(Map[nx1][ny1] || Map[nx2][ny2])
+                    continue;
+                Visit[nx1][ny1][nx2][ny2] = true;
+                robot temp(nx1, ny1, nx2, ny2);
+                q.push(temp);
+            }
+            if(x == xx){
+                if(check(x + 1, y) && check(x + 1, yy) && !Map[x + 1][y]  && !Map[x + 1][yy]){
+                    if(!Visit[x][y][x + 1][y]){
+                        Visit[x][y][x + 1][y] = true;
+                        robot temp(x , y, x + 1, y);
+                        q.push(temp);
+                    }
+                    if(!Visit[x][yy][x + 1][yy]){
+                        Visit[x][yy][x + 1][yy] = true;
+                        robot temp(x , yy, x + 1, yy);
+                        q.push(temp);
+                    }
+                }
+                if(check(x - 1, y) && check(x - 1, yy) && !Map[x - 1][y] && !Map[x - 1][yy]){
+                    if(!Visit[x - 1][y][x][y]){
+                        Visit[x - 1][y][x][y] = true;
+                        robot temp(x - 1, y, x, y);
+                        q.push(temp);
+                    }
+                    if(!Visit[x - 1][yy][x][yy]){
+                        Visit[x - 1][yy][x][yy] = true;
+                        robot temp(x - 1, yy, x, yy);
+                        q.push(temp);
+                    }
+                }
+            }
+            if(y == yy){
+                if(check(x, yy - 1) && check(xx, yy - 1) && !Map[x][yy - 1] && !Map[xx][yy - 1]){
+                    if(!Visit[x][y - 1][x][y]){
+                        Visit[x][y - 1][x][y] = true;
+                        robot temp(x , y - 1, x, y);
+                        q.push(temp);
+                    }
+                    if(!Visit[xx][y - 1][xx][y]){
+                        Visit[xx][y - 1][xx][y] = true;
+                        robot temp(xx , y - 1, xx, y);
+                        q.push(temp);
+                    }
+                }
+                if(check(x, y + 1) && check(xx, y + 1) && !Map[x][yy + 1] && !Map[xx][yy + 1]){
+                    if(!Visit[x][y][x][y + 1]){
+                        Visit[x][y][x][y + 1] = true;
+                        robot temp(x , y, x, y + 1);
+                        q.push(temp);
+                    }
+                    if(!Visit[xx][y][xx][y + 1]){
+                        Visit[xx][y][xx][y + 1] = true;
+                        robot temp(xx , y, xx, y + 1);
+                        q.push(temp);
+                    }
+                }
+            }
+        }
+        cnt++;
+    }
+}
+int solution(vector<vector<int>> board) {
+    N = board[0].size();
+    swap(Map, board);
+    bfs();
+    return answer;
+}
