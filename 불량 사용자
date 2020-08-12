@@ -1,52 +1,62 @@
 #include <string>
 #include <vector>
 #include <set>
-#include <stack>
-#include<iostream>
-#include<algorithm>
+
 using namespace std;
 int bsize, usize;
 int answer = 0;
 vector<string> cananswer[10];
-set<string> s;
 set<set<string>> tot;
+
 void dfs(int cnt, set<string> temp){
+    // set으로 인해서 중복된게 있다면 더이상 진행할 필요없이 return
     if(cnt != temp.size())
         return;
+    // 끝까지 들어왔으면 set<set<string>>에 중복된 정답이 있는지 확인
     if(cnt == bsize){
         tot.insert(temp);
         return;
     }
+    // dfs를 통하여 각 후보를 하나씩 넣어준다.
     for(int i = 0; i < cananswer[cnt].size(); i++){
         set<string> tmp(temp);
         tmp.insert(cananswer[cnt][i]);
         dfs(cnt + 1, tmp);
     }
 }
+
 int solution(vector<string> user_id, vector<string> banned_id) {
     bsize = banned_id.size();
     usize = user_id.size();
+    /*  목표는 banned_id에 어떤 user_id의 원소가 들어갈 수 있나 체크하는 것이다.
+     *  banned_id[i] 에 포함 될 수 있는 user_id의 원소를
+     *  cananswer[i]에 넣어준다.
+     */
     for(int i = 0; i < bsize; i++){
         for(int j = 0; j < usize; j++){
             bool check = true;
+            // 길이가 다르다면 후보에서 탈락
             if(banned_id[i].size() != user_id[j].size()){
                 check = false;
                 continue;
             }
-
+            // 각 원소의 성분이 다르고 *도 아니라면 탈락
             for(int k = 0; k < user_id[j].size(); k++){
                 if(banned_id[i][k] != user_id[j][k] && banned_id[i][k] != '*'){
                     check = false;
                     break;
                 }
             }
+            // 가능한 것만 cananswer에 넣어준다
             if(check) {
                 cananswer[i].push_back(user_id[j]);
             }
         }
     }
+
     set<string> tmp;
     dfs(0, tmp);
+    // 중복된것을 제외한 사이즈가 정답
     answer = tot.size();
     return answer;
 }
