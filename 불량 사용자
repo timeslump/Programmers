@@ -1,0 +1,52 @@
+#include <string>
+#include <vector>
+#include <set>
+#include <stack>
+#include<iostream>
+#include<algorithm>
+using namespace std;
+int bsize, usize;
+int answer = 0;
+vector<string> cananswer[10];
+set<string> s;
+set<set<string>> tot;
+void dfs(int cnt, set<string> temp){
+    if(cnt != temp.size())
+        return;
+    if(cnt == bsize){
+        tot.insert(temp);
+        return;
+    }
+    for(int i = 0; i < cananswer[cnt].size(); i++){
+        set<string> tmp(temp);
+        tmp.insert(cananswer[cnt][i]);
+        dfs(cnt + 1, tmp);
+    }
+}
+int solution(vector<string> user_id, vector<string> banned_id) {
+    bsize = banned_id.size();
+    usize = user_id.size();
+    for(int i = 0; i < bsize; i++){
+        for(int j = 0; j < usize; j++){
+            bool check = true;
+            if(banned_id[i].size() != user_id[j].size()){
+                check = false;
+                continue;
+            }
+
+            for(int k = 0; k < user_id[j].size(); k++){
+                if(banned_id[i][k] != user_id[j][k] && banned_id[i][k] != '*'){
+                    check = false;
+                    break;
+                }
+            }
+            if(check) {
+                cananswer[i].push_back(user_id[j]);
+            }
+        }
+    }
+    set<string> tmp;
+    dfs(0, tmp);
+    answer = tot.size();
+    return answer;
+}
