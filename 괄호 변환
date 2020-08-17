@@ -1,0 +1,64 @@
+#include <bits/stdc++.h>
+using namespace std;
+map<char, char> m;
+bool isClear(string s){
+    stack<char> pal;
+    for(int i = 0; i < s.size(); i++){
+        if(s[i] == '(')
+            pal.push('(');
+        else{
+            if(pal.empty())
+                return false;
+            else
+                pal.pop();
+        }
+    }
+    if(pal.empty())
+        return true;
+    else
+        return false;
+}
+string Solve(string u, string v){
+    if(isClear(u) && v == "")
+        return u;
+    int i, l = 0, r = 0;
+    for(i = 0; i < u.size(); i++){
+        if(u[i] == '(')
+            l++;
+        else
+            r++;
+        if(l != 0 && l == r && i != u.size() - 1){
+            break;
+        }
+    }
+    string nu, nv;
+    if(i != u.size()) {
+        nu = u.substr(0, i + 1);
+        nv = u.substr(i + 1, u.size() - i);
+    }
+    else{
+        nu = u;
+        nv = "";
+    }
+    //cout << nu << "   " << nv << endl;
+    if(isClear(nu)){
+        nu += Solve(nv, "");
+        //cout << nu << endl;
+        return nu;
+    }
+    else{
+        string s;
+        s += '(';
+        s += Solve(nv, "");
+        s += ')';
+        nu = nu.substr(1, nu.size() - 2);
+        for(int i = 0; i < nu.size(); i++)
+            s += m[nu[i]];
+        return s;
+    }
+}
+string solution(string p) {
+    m['('] = ')';
+    m[')'] = '(';
+    return Solve(p, "");
+}
