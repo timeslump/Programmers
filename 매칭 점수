@@ -1,0 +1,82 @@
+#include<bits/stdc++.h>
+
+using namespace std;
+typedef long long ll;
+
+
+// page 별 기본점수와 link를 담을 구조체
+struct Data{
+    ll basic;
+    vector<string> link;
+}data[30];
+
+// index와 url을 mapping 해준다.
+map<string, int> m;
+long double ans[30];
+
+int solution(string word, vector<string> pages) {
+    // 우선 다 소문자로 바꿔준다.
+    transform(word.begin(), word.end(), word.begin(), ::tolower);
+    int answer = 0;
+    int N = pages.size();
+    int start, end;
+
+    // 할당이 되지 않는 mapping이 0으로 가기 때문에 1부터 index가 시작해야함
+    int i = 1;
+
+    // 각 page 별로
+    for(auto& s : pages){
+
+
+        // 우선 다 소문자로 바꿔준다.
+        transform(s.begin(), s.end(), s.begin(), ::tolower);
+
+        // url의 주소를 가져온다.
+        start = s.find("<meta property=", 0);
+        start = s.find("content=", start);
+        start += 9;
+        end = s.find("/>", start);
+        string url = s.substr(start, end - start - 1);
+        // map에 index와 mapping
+        m[url] = i;
+
+
+        // <a href 부분을 가져와 link가 무엇이 있는지 확인하고 구조체에 넣어줌
+        int end = 0;
+        while((start = s.find("<a href=", end)) != string::npos){
+            end = s.find("\">", start);
+            data[i].link.push_back(s.substr(start + 9, end - start - 9));
+        }
+
+        // word 부분을 찾는다. 몇개나 있는지 확인.
+        for(int k = 0; k < s.size() - word.size(); k++){
+            if(s.substr(k, word.size()) == word){
+                if(s[k - 1] >= 'a' && s[k - 1] <= 'z')
+                    continue;
+                if(s[k + word.size()] >= 'a' && s[k + word.size()] <= 'z')
+                    continue;
+                data[i].basic++;
+            }
+        }
+        i++;
+    }
+
+    // 점수를 합산해준다.
+    for(int i = 1; i <= N; i++){
+        ans[i] += data[i].basic;
+        for(auto j : data[i].link){
+            ans[m[j]] += (double) data[i].basic / data[i].link.size();
+        }
+    }
+
+    // 최대값 구하기. 소수의 형태가 나올 수 있음으로 항상 long double 써주자.
+    long double max = -1;
+    for(int i = 1; i <= N; i++){
+        if(max < ans[i]){
+            max = ans[i];
+            answer = i;
+        }
+    }
+    // index가 1에서 시작했음으로 1 빼준다.
+    return answer - 1;
+}
