@@ -1,0 +1,52 @@
+#include <bits/stdc++.h>
+#include <algorithm>
+
+using namespace std;
+bool cmp(string a, const string b){
+    int i = 0, j = 0;
+    // 숫자가 나오기 전까지는 head 부분이다.
+    while(!(a[i] >= '0' && a[i] <= '9'))
+        i++;
+    while(!(b[j] >= '0' && b[j] <= '9'))
+        j++;
+    string ahead  = a.substr(0, i);
+    string bhead = b.substr(0, j);
+
+    // uppercase로 변환
+    transform(ahead.begin(), ahead.end(),ahead.begin(), ::toupper);
+    transform(bhead.begin(), bhead.end(),bhead.begin(), ::toupper);
+    // head는 사전순으로 비교
+    if(ahead == bhead){
+        int idx1 = i;
+        int idx2 = j;
+
+        // Number 부분은 head 다음 숫자가 끝날때 까지.
+        while((a[i] >= '0' && a[i] <= '9'))
+            i++;
+        while((b[j] >= '0' && b[j] <= '9'))
+            j++;
+        string aNum = a.substr(idx1, i - idx1);
+        string bNum = b.substr(idx2, j - idx2);
+        // stoi()를 이용하여 int로 바꿔준다.
+        int aNumber = stoi(aNum);
+        int bNumber = stoi(bNum);
+        // 숫자 비교
+        if(aNumber == bNumber){
+        }
+        else{
+            return aNumber < bNumber;
+        }
+
+    }
+    else{
+        return ahead < bhead;
+    }
+}
+vector<string> solution(vector<string> files) {
+    // 같은 경우 순서가 바뀌면 안됨으로 stable sort를 사용
+    stable_sort(files.begin(), files.end(), cmp);
+    
+    // sort 했으면 정답에 그대로 넣어준다.
+    vector<string> answer(files);
+    return answer;
+}
