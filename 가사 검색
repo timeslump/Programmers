@@ -1,0 +1,76 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+#define ALPHABETS 26
+int toNumber(char ch){
+    return ch - 'a';
+}
+struct Trie {
+    Trie *children[ALPHABETS];
+    int terminal;
+    int cnt;
+    Trie() : cnt(0), terminal(false) {
+        memset(children, NULL, sizeof(children));
+    }
+    ~Trie() {
+        for (int i = 0; i < ALPHABETS; i++)
+            if (children[i])
+                delete children[i];
+    }
+    void insert(const char *key) {
+        if (*key == 0)
+            terminal = true;
+        else {
+            int next = toNumber(*key);
+            if (children[next] == NULL)
+                children[next] = new Trie();
+            children[next] -> cnt++;
+            children[next] -> insert(key + 1);
+        }
+    }
+    int find(const char *key) {
+        if (*key == '?')
+            return this -> cnt;
+        int next = toNumber(*key);
+        if (this == NULL || children[next] == NULL)
+            return 0;
+        return children[next] -> find(key + 1);
+    }
+};
+char tmp[10003];
+Trie* prefix[10003];
+Trie* postfix[10003];
+vector<int> solution(vector<string> words, vector<string> queries) {
+    vector<int> answer;
+    memset(prefix, NULL, sizeof(prefix));
+    memset(postfix, NULL, sizeof(postfix));
+    for(auto s : words){
+        if(prefix[s.size()] == NULL){
+            prefix[s.size()] = new Trie;
+            postfix[s.size()] = new Trie;
+        }
+        strcpy(tmp, s.c_str());
+        prefix[s.size()] -> cnt++;
+        prefix[s.size()] -> insert(tmp);
+        reverse(s.begin(),s.end());
+        strcpy(tmp, s.c_str());
+        postfix[s.size()] -> cnt++;
+        postfix[s.size()] -> insert(tmp);
+    }
+    for(auto s : queries){
+        if(prefix[s.size()] == NULL){
+            answer.push_back(0);
+            continue;
+        }
+        if(s[0] == '?') {
+            reverse(s.begin(),s.end());
+            strcpy(tmp, s.c_str());
+            answer.push_back(postfix[s.size()] -> find(tmp));
+        }
+        else {
+            strcpy(tmp, s.c_str());
+            answer.push_back(prefix[s.size()]->find(tmp));
+        }
+    }
+    return answer;
+}
