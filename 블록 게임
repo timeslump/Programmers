@@ -1,0 +1,75 @@
+#include<bits/stdc++.h>
+
+using namespace std;
+int N, mark;
+vector<vector<int>> Map;
+bool range(int i, int j){
+    if(i >= 0 && i < N && j >= 0 && j < N)
+        return true;
+    return false;
+}
+
+bool possible(int x, int y){
+    for(int i = x; i >= 0; i--){
+        if(Map[i][y])
+            return false;
+    }
+    return true;
+}
+
+int solution(vector<vector<int>> board) {
+    swap(Map, board);
+    int answer = 0;
+    bool check = true;
+    N = Map.size();
+    while(check){
+        check = false;
+        for(int i = 0; i < N; i++) {
+            bool flag = false;
+            for (int j = 0; j < N; j++) {
+                if (Map[i][j] && !flag) {
+                    mark = Map[i][j];
+                    if (range(i, j + 2) && Map[i][j + 1] == mark && Map[i][j + 2] == mark) {
+                        if (range(i - 1, j) && Map[i - 1][j] + Map[i - 1][j + 1] + Map[i - 1][j + 2] == mark) {
+                            if (Map[i - 1][j] == mark && possible(i - 1, j + 1) && possible(i - 1, j + 2)) {
+                                flag = true;
+                                Map[i - 1][j] = 0;
+                            } else if (Map[i - 1][j + 1] == mark && possible(i - 1, j) && possible(i - 1, j + 2)) {
+                                flag = true;
+                                Map[i - 1][j + 1] = 0;
+                            } else if (Map[i - 1][j + 2] == mark && possible(i - 1, j) && possible(i - 1, j + 1)) {
+                                flag = true;
+                                Map[i - 1][j + 2] = 0;
+                            }
+                            if (flag) {
+                                check = true;
+                                answer++;
+                                Map[i][j] = 0;
+                                Map[i][j + 1] = 0;
+                                Map[i][j + 2] = 0;
+                            }
+                        }
+                    } else if (range(i - 2, j) && Map[i - 1][j] == mark && Map[i - 2][j] == mark) {
+                        if (range(i, j + 1) && Map[i][j + 1] == mark && possible(i - 1, j + 1)) {
+                            flag = true;
+                            Map[i][j + 1] = 0;
+                        } else if (range(i, j - 1) && Map[i][j - 1] == mark && possible(i - 1, j - 1)) {
+                            flag = true;
+                            Map[i][j - 1] = 0;
+                        }
+                        if (flag) {
+                            answer++;
+                            check = true;
+                            Map[i][j] = 0;
+                            Map[i - 1][j] = 0;
+                            Map[i - 2][j] = 0;
+                        }
+                    }
+                }
+            }
+            if (flag)
+                break;
+        }
+    }
+    return answer;
+}
